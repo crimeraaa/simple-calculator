@@ -11,7 +11,10 @@
 
 // %% = escape the '%' char, %i is the format specifer, 'f' has no '%' so we don't need to escape it
 #define DECIMALS_FMT "%%.%if"
+#define DECIMALS_BUFF sizeof(DECIMALS_FMT) / sizeof(DECIMALS_FMT[0])
+
 #define EQUATION_FMT "%s %%c %s = %s\n"
+#define EQUATION_BUFF sizeof(EQUATION_FMT) / sizeof(EQUATION_FMT[0])
 
 const char *HELP_COMMANDS[] = {"--help", "--h", "help", "h"};
 #define NUM_OF_HELP_COMMANDS sizeof(HELP_COMMANDS) / sizeof(HELP_COMMANDS[0])
@@ -58,6 +61,9 @@ int main(int argc, char *argv[])
     {
         printf("Perform basic math on 2 real numbers!\n");
         printf("Try ./calcu --help (or --h) for more information.\n");
+
+        // printf("DECIMALS\n\t_FMT: %s\n\t_BUFF: %lu\n", DECIMALS_FMT, DECIMALS_BUFF);
+        // printf("EQUATION\n\t_FMT: %s\n\t_BUFF: %lu\n", EQUATION_FMT, EQUATION_BUFF);
         return 0;
     }
 
@@ -230,7 +236,7 @@ void ComputeInts(int num1, char operand, int num2)
     }
     // printf("%i %c %i = %i\n", num1, operand, num2, ans);
 
-    char main_fmt[strlen(EQUATION_FMT)];
+    char main_fmt[EQUATION_BUFF];
     sprintf(main_fmt, EQUATION_FMT, "%i", "%i", "%i");
     printf(main_fmt, num1, operand, num2, ans);
 }
@@ -269,7 +275,7 @@ void ComputeDoubles(double num1, int decimals1, char operand, double num2, int d
     }
     // printf("%f %c %f = %f\n", num1, operand, num2, ans);
 
-    char main_fmt[strlen(EQUATION_FMT)];
+    char main_fmt[EQUATION_BUFF];
     char *fmt1 = PrecisionString(decimals1);
     char *fmt2 = PrecisionString(decimals2);
 
