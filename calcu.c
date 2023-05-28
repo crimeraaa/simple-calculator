@@ -261,7 +261,7 @@ void ComputeDoubles(double num1, int decimals1, char operand, double num2, int d
         break;
     case '/':
         ans = num1 / num2;
-        return;
+        break;
     case '%':
         // Modulo with floats/doubles is kinda weird due to the nature of remainders being whole
         ans = (int) num1 % (int) num2;
