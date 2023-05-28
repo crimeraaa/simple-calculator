@@ -289,7 +289,7 @@ void ComputeDoubles(double num1, int decimals1, char operand, double num2, int d
 char *PrecisionString(int decimal_places)
 {
     // Can't use static as we need variable amounts of decimal places.
-    char *fmt_length = malloc(strlen(DECIMALS_FMT) * sizeof(char));
+    char *fmt_length = malloc(DECIMALS_BUFF * sizeof(char));
 
     // 1st arg is the target or output string
     // 2nd arg must be a format string, so I defined DECIMALS_FMT accordinaly
