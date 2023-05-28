@@ -11,10 +11,7 @@
 
 // %% = escape the '%' char, %i is the format specifer, 'f' has no '%' so we don't need to escape it
 #define DECIMALS_FMT "%%.%if"
-#define DECIMALS_BUFF strlen(DECIMALS_FMT) + 1
-
 #define EQUATION_FMT "%s %%c %s = %s\n"
-#define EQUATION_BUFF strlen(EQUATION_FMT) + 1
 
 const char *HELP_COMMANDS[] = {"--help", "--h", "help", "h"};
 #define NUM_OF_HELP_COMMANDS sizeof(HELP_COMMANDS) / sizeof(HELP_COMMANDS[0])
@@ -22,7 +19,7 @@ const char *HELP_COMMANDS[] = {"--help", "--h", "help", "h"};
 char *PrecisionString(int decimal_places)
 {
     // Can't use static as we need variable amounts of decimal places.
-    char *fmt_length = malloc(DECIMALS_BUFF * sizeof(char));
+    char *fmt_length = malloc(strlen(DECIMALS_FMT) * sizeof(char));
 
     // 1st arg is the target or output string
     // 2nd arg must be a format string, so I defined DECIMALS_FMT accordinaly
@@ -175,7 +172,7 @@ void ComputeDoubles(double num1, int decimals1, char operand, double num2, int d
     }
     // printf("%f %c %f = %f\n", num1, operand, num2, ans);
 
-    char main_fmt[EQUATION_BUFF];
+    char main_fmt[strlen(EQUATION_FMT)];
     char *fmt1 = PrecisionString(decimals1);
     char *fmt2 = PrecisionString(decimals2);
 
@@ -218,7 +215,7 @@ void ComputeInts(int num1, char operand, int num2)
     }
     // printf("%i %c %i = %i\n", num1, operand, num2, ans);
 
-    char main_fmt[EQUATION_BUFF];
+    char main_fmt[strlen(EQUATION_FMT)];
     sprintf(main_fmt, EQUATION_FMT, "%i", "%i", "%i");
     printf(main_fmt, num1, operand, num2, ans);
 }
