@@ -40,8 +40,8 @@ They'll be used to specify a buffer length for sprintf later on.
 #define EQUATION_BUFF sizeof(EQUATION_FMT) / sizeof(EQUATION_FMT[0])
 
 /**
- * @brief If we got only 2 command-line args, then check against these.
- * It will print out specific instructions on how to use the program. 
+ * @brief A list of aliases for help commands.
+ * @note Only used if we got only 2 command-line arguments.
 */
 const char *HELP_COMMANDS[] = {"--help", "--h", "help", "h"};
 #define NUM_OF_HELP_COMMANDS sizeof(HELP_COMMANDS) / sizeof(HELP_COMMANDS[0])
@@ -49,21 +49,20 @@ const char *HELP_COMMANDS[] = {"--help", "--h", "help", "h"};
 struct real_number
 {
     
-    bool is_negative;
-    bool is_decimal;
-    bool *is_valid_string; /** Set to NULL on error. */ 
-    int integer; /** Init this to 0. */ 
+    bool is_negative;           /** * @note Init to false */
+    bool is_decimal;            /** * @note Init to false */
+    bool *is_valid_string;      /** * @note Init to valid address, set to NULL on error. */ 
+    
+    int integer;                /** * @note Init this to 0 on construction. */ 
 
-    /** Init these to 0 or 0.0 if is_decimal is true. */
-    int num_decimal_places; 
-    double decimal;
-    double decimal_places;
+    int num_decimal_places;     /** * @note Init to 0 if is_decimal is true. */
+    double decimal;             /** * @note Init to 0.0 if is_decimal is true. */
+    double decimal_places;      /** * @note Init to 0.0 if is_decimal is true. */
 };
 /**
  * @struct RealNumber
  * @brief Represent real numbers! Integers and Decimals (also negatives).
- * @note Members starting with 'is_' are always bools.
- * They are set to false on construction, 
+ * @note Members starting with 'is_' are set to false on construction, 
  * but set to true if the right conditions are met. 
  */
 typedef struct real_number RealNumber;
@@ -86,7 +85,7 @@ int main(int argc, char *argv[])
         for (int i = 0; i < NUM_OF_HELP_COMMANDS; i++)
         {
             /** 
-             * @brief Compare our input if it matched a help command
+             * @brief Compare our input using strcmp and see if it matched a help command.
              * @param argv our command-line args array, check the 2nd element
              * @param HELPCOMMANDS our predefined array of aliases for the "--help" command
              * @note strcmp returns 0 on success
@@ -109,9 +108,7 @@ int main(int argc, char *argv[])
         printf("Perform basic math on 2 real numbers!\n");
         printf("Try ./calcu --help (or --h) for more information.\n");
 
-        /**
-         * @note Use '%zu' as size_t may not always be unsigned long on all platforms. 
-        */
+        /** * @note Use '%zu' as size_t may not always be unsigned long on all platforms. */
         // printf("DECIMALS\n\t_FMT: %s\n\t_BUFF: %zu\n", DECIMALS_FMT, DECIMALS_BUFF);
         // printf("EQUATION\n\t_FMT: %s\n\t_BUFF: %zu\n", EQUATION_FMT, EQUATION_BUFF);
         return 0;
@@ -137,16 +134,14 @@ void WriteValues(int val, RealNumber *struct_ptr);
  * @brief 
  * @param src is a string representing (in theory anyway) a real number.
  * @return An instance of RealNumber with appropriate members filled out.
+ * @note The member pointer .is_valid_string will be set to NULL on error.
  */
 RealNumber StringToReal(char *src)
 {
-    /* Init the return value that we'll mess around with. */ 
     bool valid = true;
     RealNumber ret = {
-        /* Init to false, set to true if we encounter to right conditions */ 
         .is_negative = false,
         .is_decimal = false,
-        /* Need to init this pointer to something, else we segfault */ 
         .is_valid_string = &valid,
 
         .integer = 0,
@@ -163,7 +158,6 @@ RealNumber StringToReal(char *src)
             continue;
         }
         else if (src[i] < '0' || src[i] > '9')
-        /* Set the is_valid_string ptr to NULL so we can error check. */ 
         {
             ret.is_valid_string = NULL;
         }
@@ -188,7 +182,14 @@ RealNumber StringToReal(char *src)
 
     return ret;
 }
- 
+
+/**
+ * @brief Determine if an input char is a unary positive, unary negative or decimal point.
+ * @param indiv a specific char from the source string.
+ * @param struct_ptr a pointer to an instance of RealNumber.
+ * @return true if the input char is one of the above 3 symbols, otherwise false.
+ * @note Only considers + - .
+ */
 bool IsSymbol(char indiv, RealNumber *struct_ptr)
 {
     if (indiv == '+')
@@ -224,6 +225,11 @@ bool IsSymbol(char indiv, RealNumber *struct_ptr)
     return false;
 }
 
+/**
+ * @brief Set the values of the .integer and .decimal members based on the .is_ members.
+ * @param val ASCII-value-of-character - ASCII-value-of-character-0
+ * @param struct_ptr pointer to our RealNumber instance so we can modify it's members  directly.
+ */
 void WriteValues(int val, RealNumber *struct_ptr)
 {
     /* For the whole number section. */ 
@@ -241,6 +247,12 @@ void WriteValues(int val, RealNumber *struct_ptr)
 
 void ComputeInts(int num1, char operand, int num2);
 void ComputeDoubles(double num1, int decimals1, char operand, double num2, int decimals2);
+/**
+ * @brief Check the type for both real1 and real2, then run the operation represented by operand.
+ * @param real1 the first number you entered.
+ * @param operand a simple mathematical operation.
+ * @param real2 the second number you entered.
+ */
 void EvaluateNums(RealNumber *real1, char operand, RealNumber *real2)
 {
     if (!real1->is_decimal && !real2->is_decimal)
@@ -259,6 +271,14 @@ void EvaluateNums(RealNumber *real1, char operand, RealNumber *real2)
     ComputeDoubles(num1, decimals1, operand, num2, decimals2);
 }
 
+/**
+ * @brief Check the value of operand then run the appropriate calculation.
+ * @param num1 
+ * @param operand the desired calculation to run.
+ * @param num2 
+ * @return Forces a return if the operand is invalid.
+ * @note Division prints the answer as a float then returns.
+ */
 void ComputeInts(int num1, char operand, int num2)
 {
     int ans = 0;
@@ -297,6 +317,16 @@ void ComputeInts(int num1, char operand, int num2)
 }
 
 char *PrecisionString(int decimal_places);
+/**
+ * @brief Check the value of operand then run the appropriate calculation.
+ * @param num1 
+ * @param decimals1 num1's decimal places.
+ * @param operand the desired calculation to run.
+ * @param num2 
+ * @param decimals2 num2's decimal places.
+ * @return Forces a return if the operand is invalid.
+ * @note Modulo casts both nums to ints.
+ */
 void ComputeDoubles(double num1, int decimals1, char operand, double num2, int decimals2)
 {
     double ans = 0.0;
@@ -338,8 +368,12 @@ void ComputeDoubles(double num1, int decimals1, char operand, double num2, int d
     free(fmt1);
     free(fmt2);
 }
-
-/* This returns a malloc'd pointer. Remember to free it! */
+/**
+ * @brief Create a formatted string for how many decimal places we want to print out.
+ * @param decimal_places represents the number in %.(int)f
+ * @return Said formatted string.
+ * @note This returns a malloc'd pointer. Remember to free it!
+ */
 char *PrecisionString(int decimal_places)
 {
     /* 
@@ -347,7 +381,6 @@ char *PrecisionString(int decimal_places)
     So malloc DECIMALS_BUFF and use a pointer instead.
     */ 
     char *fmt_length = malloc(DECIMALS_BUFF * sizeof(char));
-
     /*
     To format a string, use sprintf:
     static inline int sprintf(char *__stream, const char *__format, ...)
