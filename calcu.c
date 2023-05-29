@@ -4,15 +4,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* const int NUM_ARGS
-argv[0] is the executable
-argv[1] is some number
-argv[2] is your operand
-argv[3] is the other number 
-    
-This will just set how many arguments the program needs to function. 
+/**
+ * @brief The number of command-line arguments our program needs.
+ * @note If we got 2 arguments, the user is probably trying to look for "--help". 
 */ 
-
 #define NUM_ARGS 4
 
 /* 
@@ -44,54 +39,60 @@ They'll be used to specify a buffer length for sprintf later on.
 #define EQUATION_FMT "%s %%c %s = %s\n"
 #define EQUATION_BUFF sizeof(EQUATION_FMT) / sizeof(EQUATION_FMT[0])
 
-/* 
-If only got 2 command-line args, then check against these.
-It will print out specific instructions on how to use the program. 
+/**
+ * @brief If we got only 2 command-line args, then check against these.
+ * It will print out specific instructions on how to use the program. 
 */
-
 const char *HELP_COMMANDS[] = {"--help", "--h", "help", "h"};
 #define NUM_OF_HELP_COMMANDS sizeof(HELP_COMMANDS) / sizeof(HELP_COMMANDS[0])
 
-struct RealNumber
+struct real_number
 {
-    /* 
-    Members starting with 'is_' are always bools.
-    Init to false on construction, but set to true if right conditions are met. 
-    */ 
+    
     bool is_negative;
     bool is_decimal;
-    /* Set this to NULL on error, then check against it later on. */ 
-    bool *is_valid_string;
+    bool *is_valid_string; /** Set to NULL on error. */ 
+    int integer; /** Init this to 0. */ 
 
-    /* Init this to 0. */ 
-    int integer;
-
-    /* Init these to 0 or 0.0 if is_decimal is true. */
-    int num_decimal_places;
+    /** Init these to 0 or 0.0 if is_decimal is true. */
+    int num_decimal_places; 
     double decimal;
     double decimal_places;
 };
+/**
+ * @struct RealNumber
+ * @brief Represent real numbers! Integers and Decimals (also negatives).
+ * @note Members starting with 'is_' are always bools.
+ * They are set to false on construction, 
+ * but set to true if the right conditions are met. 
+ */
+typedef struct real_number RealNumber;
 
-/* 
-The way I use forward declarations from here on, 
-they are for functions called within the nearest 'major' function.
-
-e.g. forward declare `EvaluateNums` and `StringToReal` to be used in `main` 
-*/
-
-void EvaluateNums(struct RealNumber *real1, char operand, struct RealNumber *real2);
-struct RealNumber StringToReal(char *src);
+void EvaluateNums(RealNumber *real1, char operand, RealNumber *real2);
+RealNumber StringToReal(char *src);
+/**
+ * @brief Perform math on 2 input numbers.
+ * @param argc how many command-line arguments we got.
+ * @param argv what command-line argument/s we got.
+ * @return 0 on success, 1 on failure.
+ * @note The way I use forward declarations from here on, 
+ * they are for functions called within the nearest 'major' function.
+ * e.g. forward declare EvaluateNums and StringToReal to be used within main
+ */
 int main(int argc, char *argv[])
 {
     if (argc == 2)
     {
         for (int i = 0; i < NUM_OF_HELP_COMMANDS; i++)
         {
-            int got_help = strcmp(argv[1], HELP_COMMANDS[i]);
-            /* 
-            strcmp returns 0 on success
-            (that is, both input strings have equal chars) 
+            /** 
+             * @brief Compare our input if it matched a help command
+             * @param argv our command-line args array, check the 2nd element
+             * @param HELPCOMMANDS our predefined array of aliases for the "--help" command
+             * @note strcmp returns 0 on success
+             * (that is, both input strings have equal chars) 
             */ 
+            int got_help = strcmp(argv[1], HELP_COMMANDS[i]);
             if (got_help == 0)
             {
                 printf("USAGE\n\t./nums num1 operand num2\n");
@@ -108,15 +109,17 @@ int main(int argc, char *argv[])
         printf("Perform basic math on 2 real numbers!\n");
         printf("Try ./calcu --help (or --h) for more information.\n");
 
-        /* Use '%zu' as size_t may not always be unsigned long on all platforms. */
+        /**
+         * @note Use '%zu' as size_t may not always be unsigned long on all platforms. 
+        */
         // printf("DECIMALS\n\t_FMT: %s\n\t_BUFF: %zu\n", DECIMALS_FMT, DECIMALS_BUFF);
         // printf("EQUATION\n\t_FMT: %s\n\t_BUFF: %zu\n", EQUATION_FMT, EQUATION_BUFF);
         return 0;
     }
 
-    struct RealNumber num1 = StringToReal(argv[1]);
+    RealNumber num1 = StringToReal(argv[1]);
     char operand = argv[2][0];
-    struct RealNumber num2 = StringToReal(argv[3]);
+    RealNumber num2 = StringToReal(argv[3]);
 
     if (num1.is_valid_string == NULL || num2.is_valid_string == NULL)
     {
@@ -128,13 +131,18 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-bool IsSymbol(char indiv, struct RealNumber *struct_ptr);
-void WriteValues(int val, struct RealNumber *struct_ptr);
-struct RealNumber StringToReal(char *src)
+bool IsSymbol(char indiv, RealNumber *struct_ptr);
+void WriteValues(int val, RealNumber *struct_ptr);
+/**
+ * @brief 
+ * @param src is a string representing (in theory anyway) a real number.
+ * @return An instance of RealNumber with appropriate members filled out.
+ */
+RealNumber StringToReal(char *src)
 {
     /* Init the return value that we'll mess around with. */ 
     bool valid = true;
-    struct RealNumber ret = {
+    RealNumber ret = {
         /* Init to false, set to true if we encounter to right conditions */ 
         .is_negative = false,
         .is_decimal = false,
@@ -181,7 +189,7 @@ struct RealNumber StringToReal(char *src)
     return ret;
 }
  
-bool IsSymbol(char indiv, struct RealNumber *struct_ptr)
+bool IsSymbol(char indiv, RealNumber *struct_ptr)
 {
     if (indiv == '+')
     {
@@ -216,7 +224,7 @@ bool IsSymbol(char indiv, struct RealNumber *struct_ptr)
     return false;
 }
 
-void WriteValues(int val, struct RealNumber *struct_ptr)
+void WriteValues(int val, RealNumber *struct_ptr)
 {
     /* For the whole number section. */ 
     if (!struct_ptr->is_decimal)
@@ -233,7 +241,7 @@ void WriteValues(int val, struct RealNumber *struct_ptr)
 
 void ComputeInts(int num1, char operand, int num2);
 void ComputeDoubles(double num1, int decimals1, char operand, double num2, int decimals2);
-void EvaluateNums(struct RealNumber *real1, char operand, struct RealNumber *real2)
+void EvaluateNums(RealNumber *real1, char operand, RealNumber *real2)
 {
     if (!real1->is_decimal && !real2->is_decimal)
     {
