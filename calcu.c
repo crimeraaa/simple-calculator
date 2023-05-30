@@ -62,8 +62,9 @@ struct real_number
 /**
  * @struct RealNumber
  * @brief Represent real numbers! Integers and Decimals (also negatives).
- * @note Members starting with 'is_' are set to false on construction, 
+ * @note .is_negative and .is_decimal are set to false on construction, 
  * but set to true if the right conditions are met. 
+ * @note .is_valid_string is set to a valid address and set to NULL on error.
  */
 typedef struct real_number RealNumber;
 
@@ -73,7 +74,7 @@ RealNumber StringToReal(char *src);
  * @brief Perform math on 2 input numbers.
  * @param argc how many command-line arguments we got.
  * @param argv what command-line argument/s we got.
- * @return 0 on success, 1 on failure.
+ * @retval 0 on successful execution, 1 on error.
  * @note The way I use forward declarations from here on, 
  * they are for functions called within the nearest 'major' function.
  * e.g. forward declare EvaluateNums and StringToReal to be used within main
@@ -133,7 +134,7 @@ void WriteValues(int val, RealNumber *struct_ptr);
 /**
  * @brief 
  * @param src is a string representing (in theory anyway) a real number.
- * @return An instance of RealNumber with appropriate members filled out.
+ * @retval An instance of RealNumber with appropriate members filled out.
  * @note The member pointer .is_valid_string will be set to NULL on error.
  */
 RealNumber StringToReal(char *src)
@@ -184,11 +185,11 @@ RealNumber StringToReal(char *src)
 }
 
 /**
- * @brief Determine if an input char is a unary positive, unary negative or decimal point.
+ * @brief Determine if an input char represents a unary positive, unary negative or decimal point.
  * @param indiv a specific char from the source string.
  * @param struct_ptr a pointer to an instance of RealNumber.
- * @return true if the input char is one of the above 3 symbols, otherwise false.
- * @note Only considers + - .
+ * @retval A boolean; true if the input char is one of the above 3 symbols, otherwise false.
+ * @note Only returns true for the following: + - .
  */
 bool IsSymbol(char indiv, RealNumber *struct_ptr)
 {
@@ -276,7 +277,7 @@ void EvaluateNums(RealNumber *real1, char operand, RealNumber *real2)
  * @param num1 
  * @param operand the desired calculation to run.
  * @param num2 
- * @return Forces a return if the operand is invalid.
+ * @return If the operand is invalid.
  * @note Division prints the answer as a float then returns.
  */
 void ComputeInts(int num1, char operand, int num2)
@@ -324,7 +325,7 @@ char *PrecisionString(int decimal_places);
  * @param operand the desired calculation to run.
  * @param num2 
  * @param decimals2 num2's decimal places.
- * @return Forces a return if the operand is invalid.
+ * @return If the operand is invalid.
  * @note Modulo casts both nums to ints.
  */
 void ComputeDoubles(double num1, int decimals1, char operand, double num2, int decimals2)
@@ -371,7 +372,7 @@ void ComputeDoubles(double num1, int decimals1, char operand, double num2, int d
 /**
  * @brief Create a formatted string for how many decimal places we want to print out.
  * @param decimal_places represents the number in %.(int)f
- * @return Said formatted string.
+ * @retval Said formatted string.
  * @note This returns a malloc'd pointer. Remember to free it!
  */
 char *PrecisionString(int decimal_places)
